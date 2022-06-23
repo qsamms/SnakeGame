@@ -3,12 +3,14 @@ import time
 import random
 import pickle
 
+#reading the highscore from the highscore file
 try:
     with open('highscore.dat','rb') as file:
         highscore = pickle.load(file)
 except:
     highscore = 0
 
+#some constants we'll need
 display_width = 800
 display_height = 600
 light = (208,208,208)
@@ -17,7 +19,10 @@ blue = (0,0,255)
 black = (0,0,0)
 red = (255,0,0)
 white = (255,255,255)
+speed = 12
+snakesize = 20
 
+#initializing 
 pygame.init()
 pygame.mixer.init()
 display = pygame.display.set_mode((display_width,display_height))
@@ -25,12 +30,10 @@ pygame.display.update()
 pygame.display.set_caption("Snake Game!")
 font_style = pygame.font.SysFont(None,50)
 score_style = pygame.font.SysFont(None,25)
-
 clock = pygame.time.Clock()
-speed = 12
-snakesize = 20
 display.fill(white)
 
+#functions
 def checkFood(snakeList,foodx,foody):
     for x in snakeList:
         if([foodx,foody] == x):
@@ -64,16 +67,13 @@ def displayChart():
     
     pygame.draw.rect(display,black,[0,0,800,40])
 
-
-
 def displaySnake(snakeList):
     for x in snakeList:
         pygame.draw.rect(display,black,[x[0],x[1],snakesize,snakesize])
 
+#our main function
 def gameloop():
-    global high 
     high = highscore
-    global scorecount
     scorecount = 1
     quit = False
     lost = False
@@ -87,6 +87,9 @@ def gameloop():
     crunch = pygame.mixer.Sound('./sound/crunch.mp3')
     losesound = pygame.mixer.Sound('./sound/losingsound.mp3')
 
+    #generating the random number for the food
+    #food has to be a multiple of 20 or else its position can't 
+    #fully equal that of the snake
     foodx = random.randint(0,39) * 20
     foody = random.randint(2,29) * 20
     check = checkFood([x1,y1],foodx,foody)
@@ -127,7 +130,7 @@ def gameloop():
                     if(x1diff == snakesize):
                         x1diff = snakesize
                         y1diff = 0
-                    else:
+                    else:    
                         x1diff = -snakesize
                         y1diff = 0
                 if(event.key == pygame.K_RIGHT or event.key == pygame.K_d):
@@ -152,6 +155,9 @@ def gameloop():
                         x1diff = 0
                         y1diff = snakesize
 
+        #we just pressed a key so we don't want any other keypresses to mess 
+        #with x1 and y1 until the snake has fully been moved, so we'll set 
+        #movedfromlastpress to False so no other keypresses will be read
         movedfromlastpress = False
         #if snake goes off screen player loses
         if(x1 >= display_width or x1 < 0 or y1 >= display_height or y1 < 40):
@@ -184,6 +190,7 @@ def gameloop():
                 pygame.mixer.Sound.play(losesound)
         
         #since we displayed the chart again above^ we have to display everything again
+        #snake has finally fully moved and updated so we set movedfromlastpress true
         displayHighscore()
         displayScore(scorecount)
         displaySnake(snakeList)
@@ -213,5 +220,6 @@ def gameloop():
         pickle.dump(high,file)
     
     pygame.quit()
+    quit()
 
 gameloop()
