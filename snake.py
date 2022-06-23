@@ -121,28 +121,28 @@ def gameloop():
                 #to the current one) and cross over the snake body and suddenly lose
                 #because that would be a dumb and annoying mechanic, so if that happens i just keep 
                 #the snake going in whatever direction it was
-                if(event.key == pygame.K_LEFT):
+                if(event.key == pygame.K_LEFT or event.key == pygame.K_a):
                     if(x1diff == snakesize):
                         x1diff = snakesize
                         y1diff = 0
                     else:
                         x1diff = -snakesize
                         y1diff = 0
-                if(event.key == pygame.K_RIGHT):
+                if(event.key == pygame.K_RIGHT or event.key == pygame.K_d):
                     if(x1diff == -snakesize):
                         x1diff = -snakesize
                         y1diff = 0
                     else:
                         x1diff = snakesize
                         y1diff = 0
-                if(event.key == pygame.K_UP):
+                if(event.key == pygame.K_UP or event.key == pygame.K_w):
                     if(y1diff == snakesize):
                         x1diff = 0
                         y1diff = snakesize
                     else:
                         x1diff = 0
                         y1diff = -snakesize
-                if(event.key == pygame.K_DOWN):
+                if(event.key == pygame.K_DOWN or event.key == pygame.K_s):
                     if(y1diff == -snakesize):
                         x1diff = 0
                         y1diff = -snakesize
