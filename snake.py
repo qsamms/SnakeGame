@@ -3,13 +3,6 @@ import time
 import random
 import pickle
 
-#reading the highscore from the highscore file
-try:
-    with open('highscore.dat','rb') as file:
-        highscore = pickle.load(file)
-except:
-    highscore = 0
-
 #some constants we'll need
 display_width = 800
 display_height = 600
@@ -40,7 +33,7 @@ def checkFood(snakeList,foodx,foody):
             return False
     return True
 
-def displayHighscore():
+def displayHighscore(highscore):
     highscoremess = "Highscore: " + str(highscore)
     highscoredisplay = score_style.render(highscoremess,True,white)
     display.blit(highscoredisplay,[670,10])
@@ -73,7 +66,11 @@ def displaySnake(snakeList):
 
 #our main function
 def gameloop():
-    high = highscore
+    try:
+       with open('highscore.dat','rb') as file:
+        high = pickle.load(file)
+    except: 
+        high = 0
     scorecount = 1
     quit = False
     lost = False
@@ -191,7 +188,7 @@ def gameloop():
         
         #since we displayed the chart again above^ we have to display everything again
         #snake has finally fully moved and updated so we set movedfromlastpress true
-        displayHighscore()
+        displayHighscore(high)
         displayScore(scorecount)
         displaySnake(snakeList)
         pygame.display.update()
@@ -209,15 +206,13 @@ def gameloop():
             snakelength += 1
             scorecount += 1
             pygame.mixer.Sound.play(crunch)
+
+        if(scorecount > high):
+            high = scorecount
+            with open('highscore.dat','wb') as file:
+                pickle.dump(high,file)
         
         clock.tick(speed)
-
-    #resets the highscore if needed and writes it to the file
-    if(scorecount > high):
-        high = scorecount
-
-    with open('highscore.dat','wb') as file:
-        pickle.dump(high,file)
     
     pygame.quit()
     quit()
