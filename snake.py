@@ -19,6 +19,7 @@ red = (255,0,0)
 white = (255,255,255)
 
 pygame.init()
+pygame.mixer.init()
 display = pygame.display.set_mode((display_width,display_height))
 pygame.display.update()
 pygame.display.set_caption("Snake Game!")
@@ -74,6 +75,7 @@ def gameloop():
     y1diff = 0
     snakelength = 1
     snakeList = []
+    crunch = pygame.mixer.Sound('./sound/crunch.mp3')
 
     foodx = random.randint(1,39) * 20
     foody = random.randint(1,29) * 20
@@ -101,8 +103,10 @@ def gameloop():
                 quit = True
             if(event.type == pygame.KEYDOWN):
                 #the if and else statements in this section make sure if the snake
-                #is going right you can't just immediately go left(or any opposite directions) 
-                # and lose because that would be a dumb and annoying mechanic
+                #is going right you can't just immediately go left(or any opposite direction 
+                #to the current one) and cross over the snake body and suddenly lose
+                #because that would be a dumb and annoying mechanic, so if that happens i just keep 
+                #the snake going in whatever direction it was
                 if(event.key == pygame.K_LEFT):
                     if(x1diff == snakesize):
                         x1diff = snakesize
@@ -148,18 +152,19 @@ def gameloop():
         #we add this to the larger snake 
         snakeList.append(snakeHead)
 
-        #since we store the position of the head of the snake every loop,
-        # we don't want to store multiple sections of snake when we should only have 1
-        #so we delete oldest section of snake if it is longer than it should be
+        #to make the snake maintain its current length while moving, 
+        #we have to delete a section from the back of the snake if the length
+        #gets too long
         if(len(snakeList) > snakelength):
             del snakeList[0]
 
         #check all of the snake sections(besides the head) and if one of 
-        #them overlaps with the head then player loses
+        #them is on the same grid as the head then player loses
         for x in snakeList[:-1]:
             if x == snakeHead:
                 lost = True
         
+        #since we displayed the chart again above^ we have to display everything again
         displayHighscore()
         displayScore(scorecount)
         displaySnake(snakeList)
@@ -171,9 +176,11 @@ def gameloop():
             foody = random.randint(1,29) * 20
             snakelength += 1
             scorecount += 1
+            pygame.mixer.Sound.play(crunch)
         
         clock.tick(speed)
 
+    #resets the highscore if needed and writes it to the file
     if(scorecount > high):
         high = scorecount
 
