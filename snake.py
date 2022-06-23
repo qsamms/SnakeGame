@@ -27,18 +27,24 @@ font_style = pygame.font.SysFont(None,50)
 score_style = pygame.font.SysFont(None,25)
 
 clock = pygame.time.Clock()
-speed = 15
+speed = 12
 snakesize = 20
 display.fill(white)
 
+def checkFood(snakeList,foodx,foody):
+    for x in snakeList:
+        if([foodx,foody] == x):
+            return False
+    return True
+
 def displayHighscore():
     highscoremess = "Highscore: " + str(highscore)
-    highscoredisplay = score_style.render(highscoremess,True,black)
+    highscoredisplay = score_style.render(highscoremess,True,white)
     display.blit(highscoredisplay,[670,10])
 
 def displayScore(score):
     scoremessage = "Score: " + str(score)
-    message = score_style.render(scoremessage,True,black)
+    message = score_style.render(scoremessage,True,white)
     display.blit(message,[10,10])
 
 def displayMessage(message,color,width,height):
@@ -55,6 +61,8 @@ def displayChart():
     for x in range(1,40,2):
         for y in range(1,30,2):
             pygame.draw.rect(display,dark,[x*snakesize,y*snakesize,snakesize,snakesize])
+    
+    pygame.draw.rect(display,black,[0,0,800,40])
             
 
 
@@ -76,15 +84,21 @@ def gameloop():
     snakelength = 1
     snakeList = []
     crunch = pygame.mixer.Sound('./sound/crunch.mp3')
+    losesound = pygame.mixer.Sound('./sound/losingsound.mp3')
 
-    foodx = random.randint(1,39) * 20
-    foody = random.randint(1,29) * 20
+    foodx = random.randint(0,39) * 20
+    foody = random.randint(2,29) * 20
+    check = checkFood([x1,y1],foodx,foody)
+    while not check:
+        foodx = random.randint(0,39) * 20
+        foody = random.randint(2,29) * 20
+        check = checkFood([x1,y1],foodx,foody)
 
     while not quit:
         #if user loses, ask them whether they want to play again or not
         while lost:
-            displayMessage("You Lost :( Play again?",blue,display_width/4,display_height/3)
-            displayMessage("yes(Y), no(N)",blue,display_width/4+70,display_height/3+70)
+            displayMessage("You Lost :( Play again?",(51,153,255),display_width/4+10,display_height/3)
+            displayMessage("(Y)es    (N)o",(51,153,255),display_width/4+90,display_height/3+70)
             pygame.display.update()
             for event in pygame.event.get():
                 if(event.type == pygame.KEYDOWN):
@@ -137,8 +151,9 @@ def gameloop():
                         y1diff = snakesize
 
         #if snake goes off screen player loses
-        if(x1 >= display_width or x1 < 0 or y1 >= display_height or y1 < 0):
+        if(x1 >= display_width or x1 < 0 or y1 >= display_height or y1 < 40):
             lost = True
+            pygame.mixer.Sound.play(losesound)
 
         x1 += x1diff
         y1 += y1diff
@@ -163,6 +178,7 @@ def gameloop():
         for x in snakeList[:-1]:
             if x == snakeHead:
                 lost = True
+                pygame.mixer.Sound.play(losesound)
         
         #since we displayed the chart again above^ we have to display everything again
         displayHighscore()
@@ -172,8 +188,13 @@ def gameloop():
 
         #checking for collision with the food
         if(x1 == foodx and y1 == foody):
-            foodx = random.randint(1,39) * 20
-            foody = random.randint(1,29) * 20
+            foodx = random.randint(0,39) * 20
+            foody = random.randint(2,29) * 20
+            check = checkFood(snakeList,foodx,foody)
+            while not check:
+                foodx = random.randint(0,39) * 20
+                foody = random.randint(2,29) * 20
+                check = checkFood(snakeList,foodx,foody)
             snakelength += 1
             scorecount += 1
             pygame.mixer.Sound.play(crunch)
