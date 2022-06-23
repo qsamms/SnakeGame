@@ -63,7 +63,7 @@ def displayChart():
             pygame.draw.rect(display,dark,[x*snakesize,y*snakesize,snakesize,snakesize])
     
     pygame.draw.rect(display,black,[0,0,800,40])
-            
+
 
 
 def displaySnake(snakeList):
@@ -83,6 +83,7 @@ def gameloop():
     y1diff = 0
     snakelength = 1
     snakeList = []
+    movedfromlastpress = True
     crunch = pygame.mixer.Sound('./sound/crunch.mp3')
     losesound = pygame.mixer.Sound('./sound/losingsound.mp3')
 
@@ -115,7 +116,8 @@ def gameloop():
         for event in pygame.event.get():
             if(event.type==pygame.QUIT):
                 quit = True
-            if(event.type == pygame.KEYDOWN):
+            if(event.type == pygame.KEYDOWN and movedfromlastpress):
+                movedfromlastpress = False
                 #the if and else statements in this section make sure if the snake
                 #is going right you can't just immediately go left(or any opposite direction 
                 #to the current one) and cross over the snake body and suddenly lose
@@ -150,6 +152,7 @@ def gameloop():
                         x1diff = 0
                         y1diff = snakesize
 
+        movedfromlastpress = False
         #if snake goes off screen player loses
         if(x1 >= display_width or x1 < 0 or y1 >= display_height or y1 < 40):
             lost = True
@@ -185,6 +188,7 @@ def gameloop():
         displayScore(scorecount)
         displaySnake(snakeList)
         pygame.display.update()
+        movedfromlastpress = True
 
         #checking for collision with the food
         if(x1 == foodx and y1 == foody):
